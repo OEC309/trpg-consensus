@@ -1,0 +1,82 @@
+:root {
+  --fg: #1f2328;
+  --muted: #656d76;
+  --bg: #f6f8fa;
+  --card: #fff;
+  --line: #d0d7de;
+  --accent: #6639ba;
+  --danger: #cf222e;
+  --success: #1a7f37;
+
+  /* 5段階の評価バッジ */
+  --lv-love: #116329;
+  --lv-like: #2da44e;
+  --lv-neutral: #6e7781;
+  --lv-ask: #9a6700;
+  --lv-ng: #cf222e;
+
+  /* 比較表の行の背景 */
+  --st-ng: #ffebe9;
+  --st-ask: #fff8c5;
+  --st-good: #dafbe1;
+  --st-neutral: #fff;
+  --st-missing: #eaeef2;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, "Hiragino Sans", "Noto Sans JP", sans-serif; color: var(--fg); background: var(--bg); }
+a { color: var(--accent); }
+main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+header.site { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 16px; background: var(--card); border-bottom: 1px solid var(--line); }
+header.site .brand { font-weight: 700; text-decoration: none; color: var(--fg); }
+header.site nav { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+footer.site { display: flex; gap: 16px; justify-content: center; padding: 24px 16px; font-size: 14px; border-top: 1px solid var(--line); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+.prose h2 { font-size: 18px; margin-top: 24px; }
+form.stack { display: grid; gap: 12px; }
+label { display: grid; gap: 4px; font-size: 14px; }
+label.inline { display: flex; gap: 8px; align-items: center; }
+input, select, textarea { font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+button { font: inherit; padding: 8px 14px; border: 0; border-radius: 6px; background: var(--accent); color: #fff; cursor: pointer; }
+button.link { background: none; color: var(--accent); padding: 0; }
+button.link.danger { color: var(--danger); }
+button:disabled { opacity: .6; }
+.error { color: var(--danger); font-size: 14px; }
+.success { color: var(--success); font-size: 14px; }
+.muted { color: var(--muted); font-size: 14px; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+
+.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 12px; color: #fff; white-space: nowrap; }
+.badge.adult { background: #8250df; }
+.badge.lv-love { background: var(--lv-love); }
+.badge.lv-like { background: var(--lv-like); }
+.badge.lv-neutral { background: var(--lv-neutral); }
+.badge.lv-ask { background: var(--lv-ask); }
+.badge.lv-ng { background: var(--lv-ng); }
+
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.level-cell { width: 1%; white-space: nowrap; text-align: right; }
+
+.save-bar { position: sticky; bottom: 0; padding: 12px 0; background: var(--bg); text-align: right; }
+
+/* 比較表 */
+.table-scroll { overflow-x: auto; }
+table.compare th, table.compare td { white-space: nowrap; }
+table.compare td:first-child, table.compare thead th:first-child { position: sticky; left: 0; background: inherit; white-space: normal; min-width: 160px; }
+table.compare tr.category th { background: var(--bg); font-size: 14px; }
+tr.st-ng { background: var(--st-ng); }
+tr.st-ask { background: var(--st-ask); }
+tr.st-good { background: var(--st-good); }
+tr.st-neutral { background: var(--st-neutral); }
+tr.st-missing { background: var(--st-missing); color: var(--muted); }
+table.compare thead tr { background: var(--card); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; list-style: none; padding: 0; margin: 0 0 12px; font-size: 14px; }
+.legend li { display: flex; align-items: center; gap: 6px; }
+.swatch { display: inline-block; width: 16px; height: 16px; border: 1px solid var(--line); border-radius: 3px; }
+.swatch.st-ng { background: var(--st-ng); }
+.swatch.st-ask { background: var(--st-ask); }
+.swatch.st-good { background: var(--st-good); }
+.swatch.st-neutral { background: var(--st-neutral); }
+.swatch.st-missing { background: var(--st-missing); }
