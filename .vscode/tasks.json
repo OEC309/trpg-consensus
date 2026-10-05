@@ -1,0 +1,39 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      // launch.json の preLaunchTask。ローカルの PostgreSQL（docker-compose.yml）を起動する
+      "label": "db: 起動",
+      "type": "shell",
+      "command": "docker compose up -d --wait",
+      "problemMatcher": []
+    },
+    {
+      "label": "db: マイグレーション生成",
+      "type": "shell",
+      "command": "npm run db:generate",
+      "problemMatcher": []
+    },
+    {
+      "label": "db: マイグレーション適用",
+      "type": "shell",
+      "command": "npm run db:migrate",
+      "dependsOn": "db: 起動",
+      "problemMatcher": []
+    },
+    {
+      // ローカル DB のデータを全て削除して作り直す（旧スキーマからの切り替え時など）
+      "label": "db: リセット",
+      "type": "shell",
+      "command": "docker compose down -v; docker compose up -d --wait; npm run db:migrate",
+      "problemMatcher": []
+    },
+    {
+      "label": "db: Drizzle Studio",
+      "type": "shell",
+      "command": "npm run db:studio",
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}

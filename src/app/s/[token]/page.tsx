@@ -1,12 +1,36 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TableIcon } from "lucide-react";
 import { AdSlot } from "@/components/AdSlot";
 import { AdultGate } from "@/components/AdultGate";
 import { LevelBadge } from "@/components/LevelBadge";
+import { AdultBadge, PageHeader } from "@/components/PageHeader";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { LIST_KIND_LABEL } from "@/lib/consensus";
+import { LIST_KIND_LABEL, type Level } from "@/lib/consensus";
 import { canUseKind, findSharedLists, getListContent } from "@/lib/lists";
 import { CUSTOM_CATEGORY, groupByCategory, PRESETS } from "@/lib/presets";
+
+function ItemList({ title, items }: { title: string; items: { key: string; label: string; level: Level | null }[] }) {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul className="divide-y">
+          {items.map((item) => (
+            <li key={item.key} className="flex items-center justify-between gap-4 py-2.5 text-sm">
+              <span>{item.label}</span>
+              <LevelBadge level={item.level} />
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
 
 // 共有URLのページ。ログイン不要（成人向けリストのみ成人フラグのあるログインユーザーに限定）
 export default async function SharedListPage({ params }: { params: Promise<{ token: string }> }) {
@@ -22,48 +46,32 @@ export default async function SharedListPage({ params }: { params: Promise<{ tok
 
   return (
     <>
-      <section className="card">
-        <h1>
-          {list.ownerHandle} さんの{LIST_KIND_LABEL[list.kind]}{" "}
-          {isAdult && <span className="badge adult">成人向け</span>}
-        </h1>
-        <p className="muted">最終更新: {list.updatedAt.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}</p>
-        <p>
-          <Link href={`/compare?t=${list.shareToken}`}>このリストを他の人と比較する</Link>
-        </p>
-      </section>
+      <PageHeader
+        title={<>{list.ownerHandle} さんの{LIST_KIND_LABEL[list.kind]} {isAdult && <AdultBadge />}</>}
+        description={`最終更新: ${list.updatedAt.toLocaleDateString("ja-JP", { timeZone: "Asia/Tokyo" })}`}
+      >
+        <Button asChild>
+          <Link href={`/compare?t=${list.shareToken}`}>
+            <TableIcon data-icon="inline-start" />他の人と比較する
+          </Link>
+        </Button>
+      </PageHeader>
 
-      {groupByCategory(PRESETS[list.kind]).map(([category, presets]) => (
-        <section key={category} className="card">
-          <h2>{category}</h2>
-          <table>
-            <tbody>
-              {presets.map((p) => (
-                <tr key={p.key}>
-                  <td>{p.label}</td>
-                  <td className="level-cell"><LevelBadge level={content.presets.get(p.key) ?? null} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      ))}
-
-      {content.customs.length > 0 && (
-        <section className="card">
-          <h2>{CUSTOM_CATEGORY}</h2>
-          <table>
-            <tbody>
-              {content.customs.map((c) => (
-                <tr key={c.id}>
-                  <td>{c.label}</td>
-                  <td className="level-cell"><LevelBadge level={c.level} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      )}
+      <div className="grid items-start gap-4 md:grid-cols-2">
+        {groupByCategory(PRESETS[list.kind]).map(([category, presets]) => (
+          <ItemList
+            key={category}
+            title={category}
+            items={presets.map((p) => ({ key: p.key, label: p.label, level: content.presets.get(p.key) ?? null }))}
+          />
+        ))}
+        {content.customs.length > 0 && (
+          <ItemList
+            title={CUSTOM_CATEGORY}
+            items={content.customs.map((c) => ({ key: c.id, label: c.label, level: c.level }))}
+          />
+        )}
+      </div>
 
       <AdSlot adultContext={isAdult} />
     </>

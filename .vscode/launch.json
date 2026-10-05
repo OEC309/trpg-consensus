@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      // サーバー側（Server Components / Server Actions / middleware）のブレークポイント用
+      "name": "Next.js: サーバー",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "npm run dev",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "db: 起動",
+      "skipFiles": ["<node_internals>/**"]
+    },
+    {
+      // ブラウザ側（"use client" のコンポーネント）のブレークポイント用。先に dev サーバーを起動しておくこと
+      "name": "Next.js: クライアント（Edge）",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    },
+    {
+      // サーバーとブラウザを同時にデバッグ。dev サーバーの起動を検知して Edge を開く
+      "name": "Next.js: フルスタック",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/next/dist/bin/next",
+      "args": ["dev"],
+      "runtimeArgs": ["--inspect"],
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "db: 起動",
+      "skipFiles": ["<node_internals>/**"],
+      "console": "integratedTerminal",
+      "serverReadyAction": {
+        "action": "debugWithEdge",
+        "killOnServerStop": true,
+        "pattern": "- Local:.+(https?://.+)",
+        "uriFormat": "%s",
+        "webRoot": "${workspaceFolder}"
+      }
+    }
+  ]
+}

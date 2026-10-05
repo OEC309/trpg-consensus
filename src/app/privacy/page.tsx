@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
+import { LegalDocument } from "@/components/LegalDocument";
 
 export const metadata: Metadata = { title: "プライバシーポリシー | 卓コンセンサス", robots: { index: true, follow: true } };
 
 // TODO: 公開前に運営者の連絡先・広告配信事業者の記載などを実態に合わせて確定させること
 export default function PrivacyPage() {
   return (
-    <section className="card prose">
-      <h1>プライバシーポリシー</h1>
+    <LegalDocument title="プライバシーポリシー">
 
       <h2>1. 取得する情報</h2>
       <ul>
@@ -34,6 +34,6 @@ export default function PrivacyPage() {
 
       <h2>5. 第三者提供</h2>
       <p>法令に基づく場合を除き、本人の同意なく個人情報を第三者に提供しません。</p>
-    </section>
+    </LegalDocument>
   );
 }

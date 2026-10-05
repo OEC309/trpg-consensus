@@ -3,10 +3,17 @@ import { Fragment } from "react";
 import { AdSlot } from "@/components/AdSlot";
 import { AdultGate } from "@/components/AdultGate";
 import { CompareForm } from "@/components/CompareForm";
+import { FormError } from "@/components/FormMessage";
 import { LevelBadge } from "@/components/LevelBadge";
+import { AdultBadge, PageHeader } from "@/components/PageHeader";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCurrentUser } from "@/lib/auth";
-import { LIST_KIND_LABEL, MAX_COMPARE } from "@/lib/consensus";
+import { LIST_KIND_LABEL, MAX_COMPARE, type RowStatus } from "@/lib/consensus";
+import { STATUS_LABEL, STATUS_ROW_CLASS, STATUS_SWATCH_CLASS } from "@/lib/level-styles";
 import { buildComparison, canUseKind, findSharedLists, getListContent, shareUrl } from "@/lib/lists";
+import { cn } from "@/lib/utils";
+
+const LEGEND_ORDER: RowStatus[] = ["ng", "ask", "good", "neutral", "missing"];
 
 // 共有URLを並べて比較するページ。ログイン不要（成人向けリストのみ成人フラグのあるログインユーザーに限定）
 export default async function ComparePage({
@@ -22,26 +29,23 @@ export default async function ComparePage({
   const kinds = new Set(lists.map((l) => l.kind));
   const urls = await Promise.all(lists.map((l) => shareUrl(l.shareToken)));
   const form = (
-    <section className="card">
-      <h2>{lists.length > 0 ? "比較する人を変更" : "共有URLで比較"}</h2>
-      <CompareForm defaultValue={urls.map((u) => `${u}\n`).join("")} />
-    </section>
+    <Card className="mt-6">
+      <CardHeader>
+        <CardTitle>{lists.length > 0 ? "比較する人を変更" : "共有URLで比較"}</CardTitle>
+        <CardDescription>メンバーの共有URLを追加・削除して「比較する」を押してください。</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <CompareForm defaultValue={urls.map((u) => `${u}\n`).join("")} />
+      </CardContent>
+    </Card>
   );
 
-  if (lists.length === 0) {
+  if (lists.length === 0 || kinds.size > 1) {
     return (
       <>
-        <h1>コンセンサス比較</h1>
-        {requested.length > 0 && <p className="error">指定されたリストが見つかりませんでした。</p>}
-        {form}
-      </>
-    );
-  }
-  if (kinds.size > 1) {
-    return (
-      <>
-        <h1>コンセンサス比較</h1>
-        <p className="error">通常リストと成人向けリストは同時に比較できません。</p>
+        <PageHeader title="コンセンサス比較" description="メンバーの共有URLを並べて、全員分のコンセンサスを一覧で比較します。" />
+        {requested.length > 0 && lists.length === 0 && <FormError message="指定されたリストが見つかりませんでした。" />}
+        {kinds.size > 1 && <FormError message="通常リストと成人向けリストは同時に比較できません。" />}
         {form}
       </>
     );
@@ -59,28 +63,37 @@ export default async function ComparePage({
 
   return (
     <>
-      <h1>
-        コンセンサス比較（{LIST_KIND_LABEL[kind]}） {isAdult && <span className="badge adult">成人向け</span>}
-      </h1>
-      {missing > 0 && <p className="error">見つからないリストが {missing} 件ありました（URLが再発行された可能性があります）。</p>}
+      <PageHeader
+        title={<>コンセンサス比較 <span className="text-base font-normal text-muted-foreground">{LIST_KIND_LABEL[kind]}・{lists.length}人</span> {isAdult && <AdultBadge />}</>}
+      />
+      {missing > 0 && (
+        <div className="mb-4">
+          <FormError message={`見つからないリストが ${missing} 件ありました（URLが再発行された可能性があります）。`} />
+        </div>
+      )}
 
-      <section className="card">
-        <ul className="legend">
-          <li><span className="swatch st-ng" />1人でも NG</li>
-          <li><span className="swatch st-ask" />1人でも要相談</li>
-          <li><span className="swatch st-good" />全員が好き以上</li>
-          <li><span className="swatch st-neutral" />上記以外</li>
-          <li><span className="swatch st-missing" />未回答・未設定の人がいる（判定なし）</li>
-        </ul>
-        <div className="table-scroll">
-          <table className="compare">
+      <ul className="mb-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
+        {LEGEND_ORDER.map((s) => (
+          <li key={s} className="flex items-center gap-2">
+            <span className={cn("inline-block size-4 rounded border", STATUS_SWATCH_CLASS[s])} />
+            {STATUS_LABEL[s]}
+          </li>
+        ))}
+      </ul>
+
+      <Card className="py-0">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
             <thead>
-              <tr>
-                <th>項目</th>
+              <tr className="border-b bg-card">
+                <th className="sticky left-0 z-10 min-w-44 bg-card px-4 py-3 text-left font-medium">項目</th>
                 {lists.map((l, i) => (
-                  <th key={l.id}>
+                  <th key={l.id} className="px-3 py-3 text-left font-medium whitespace-nowrap">
                     <Link href={`/s/${l.shareToken}`}>{l.ownerHandle}</Link>
-                    {lists.findIndex((o) => o.ownerHandle === l.ownerHandle) !== i && <span className="muted"> ({i + 1})</span>}
+                    {/* 同名のハンドルがいる場合は列番号で区別する */}
+                    {lists.findIndex((o) => o.ownerHandle === l.ownerHandle) !== i && (
+                      <span className="text-muted-foreground"> ({i + 1})</span>
+                    )}
                   </th>
                 ))}
               </tr>
@@ -89,14 +102,21 @@ export default async function ComparePage({
               {rows.map((row, i) => (
                 <Fragment key={row.key}>
                   {row.category !== rows[i - 1]?.category && (
-                    <tr className="category">
-                      <th colSpan={lists.length + 1}>{row.category}</th>
+                    <tr className="border-b bg-muted">
+                      <th
+                        colSpan={lists.length + 1}
+                        className="sticky left-0 px-4 py-2 text-left text-xs font-semibold tracking-wide text-muted-foreground"
+                      >
+                        {row.category}
+                      </th>
                     </tr>
                   )}
-                  <tr className={`st-${row.status}`}>
-                    <td>{row.label}</td>
+                  <tr className={cn("border-b last:border-0", STATUS_ROW_CLASS[row.status])}>
+                    <td className="sticky left-0 z-10 bg-inherit px-4 py-2.5">{row.label}</td>
                     {row.levels.map((lv, j) => (
-                      <td key={j}><LevelBadge level={lv} /></td>
+                      <td key={j} className="px-3 py-2.5">
+                        <LevelBadge level={lv} />
+                      </td>
                     ))}
                   </tr>
                 </Fragment>
@@ -104,7 +124,7 @@ export default async function ComparePage({
             </tbody>
           </table>
         </div>
-      </section>
+      </Card>
 
       {form}
       <AdSlot adultContext={isAdult} />

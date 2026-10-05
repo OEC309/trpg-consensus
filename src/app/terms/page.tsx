@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
+import { LegalDocument } from "@/components/LegalDocument";
 
 export const metadata: Metadata = { title: "利用規約 | 卓コンセンサス", robots: { index: true, follow: true } };
 
 // TODO: 公開前に運営者情報・準拠法・管轄裁判所などを実態に合わせて確定させること
 export default function TermsPage() {
   return (
-    <section className="card prose">
-      <h1>利用規約</h1>
+    <LegalDocument title="利用規約">
       <p>この利用規約は、卓コンセンサス（以下「本サービス」）の利用条件を定めるものです。</p>
 
       <h2>1. アカウント</h2>
@@ -36,6 +36,6 @@ export default function TermsPage() {
 
       <h2>5. 変更</h2>
       <p>運営者は必要に応じて本規約を変更できるものとし、変更後の規約は本ページに掲載した時点で効力を生じます。</p>
-    </section>
+    </LegalDocument>
   );
 }

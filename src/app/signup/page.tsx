@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AuthCard } from "@/components/AuthCard";
 import { getCurrentUser } from "@/lib/auth";
 import { safeNext } from "@/lib/validation";
 import { SignupForm } from "./SignupForm";
@@ -16,12 +17,16 @@ export default async function SignupPage({
   if (await getCurrentUser()) redirect(next);
 
   return (
-    <section className="card">
-      <h1>新規登録</h1>
+    <AuthCard
+      title="新規登録"
+      description="登録すると、通常リストと成人向けリストが作成されます"
+      footer={
+        <p>
+          登録済みの方は <Link href={`/login?next=${encodeURIComponent(next)}`}>ログイン</Link>
+        </p>
+      }
+    >
       <SignupForm next={next} />
-      <p className="muted">
-        登録済みの方は <Link href={`/login?next=${encodeURIComponent(next)}`}>ログイン</Link>
-      </p>
-    </section>
+    </AuthCard>
   );
 }

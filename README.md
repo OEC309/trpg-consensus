@@ -10,6 +10,7 @@ TRPG で扱う題材について「大歓迎・好き・普通・要相談・NG�
 | DB | PostgreSQL（本番: Neon または Supabase / ローカル: Docker） |
 | ORM / マイグレーション | Drizzle ORM + drizzle-kit |
 | 認証 | 自前のセッション認証（Argon2id + DB セッション + httpOnly Cookie） |
+| UI | Tailwind CSS v4 + shadcn/ui（Radix UI, `src/components/ui/`）、lucide-react、sonner、next-themes |
 | バリデーション | Zod |
 | ホスティング | Vercel |
 | 広告 | Google AdSense（成人向けページでは非表示） |

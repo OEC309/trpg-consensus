@@ -2,7 +2,7 @@
 
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { db, isUniqueViolation } from "@/db";
 import { consensusLists, customItems, presetAnswers } from "@/db/schema";
 import { requireUser } from "@/lib/auth";
@@ -34,7 +34,7 @@ function touch(listId: string) {
   return db.update(consensusLists).set({ updatedAt: new Date() }).where(eq(consensusLists.id, listId));
 }
 
-export async function saveList(kind: string, formData: FormData): Promise<void> {
+export async function saveList(kind: string, _prev: FormState, formData: FormData): Promise<FormState> {
   const list = await requireOwnList(kind);
 
   const upserts: { listId: string; itemKey: string; level: Level }[] = [];
@@ -80,7 +80,7 @@ export async function saveList(kind: string, formData: FormData): Promise<void> 
   });
 
   revalidatePath(`/my/${list.kind}`);
-  redirect(`/my/${list.kind}?saved=1`);
+  return { ok: "保存しました" };
 }
 
 export async function addCustomItem(kind: string, _prev: FormState, formData: FormData): Promise<FormState> {
